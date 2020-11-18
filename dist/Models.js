@@ -44,3 +44,4 @@ var ClientModel = MySQL_1.default.define('Client', {
 exports.ClientModel = ClientModel;
 LawyerModel.hasMany(ClientModel);
 ClientModel.hasMany(ImageModel);
+ClientModel.belongsTo(LawyerModel);

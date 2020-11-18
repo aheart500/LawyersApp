@@ -21,8 +21,9 @@ export interface Client {
     id: number
     fees: number
     forward_payment: number
-    images: Array<Image>
+    Images: Array<Image>
     LawyerId: number
+    Lawyer: Lawyer
 }
 export type LawyerM = ModelDefined<Lawyer, Optional<Lawyer, 'id'>>
 export type ImageM = ModelDefined<Image, Optional<Image, 'id'>>
@@ -66,7 +67,7 @@ const ClientModel: ClientM = DB.define('Client', {
 
 LawyerModel.hasMany(ClientModel)
 ClientModel.hasMany(ImageModel)
-
+ClientModel.belongsTo(LawyerModel)
 
 export interface Models {
     Lawyer: LawyerM,

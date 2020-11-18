@@ -1,9 +1,10 @@
 import { Button, TextField } from "@material-ui/core"
-import {FormEvent, useState, useEffect} from 'react'
+import {useState, useEffect} from 'react'
 import { LOGIN } from "../src/services"
 import useInput from "../src/useInput"
 import Cookies from 'js-cookie'
 import styles from '../styles/login.module.css'
+import { FormE } from "../src/types"
 const Login = ()=>{
     const [username, password] = [useInput(), useInput()]
     const [error, setError] = useState(false)
@@ -11,7 +12,7 @@ const Login = ()=>{
     useEffect(()=>{
         if(Cookies.get('token')) window.location.replace('admin')
     },[])
-    const handleLogin = async (e: FormEvent<HTMLFormElement>)=>{
+    const handleLogin = async (e: FormE)=>{
         setError(false)
         setLoading(true)
         e.preventDefault()

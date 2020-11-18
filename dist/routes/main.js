@@ -79,7 +79,7 @@ route.get('/lawyers', verifyToken_1.tokenHandler, function (req, res) { return _
     var lawyers;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, req.Models.Lawyer.findAll({})];
+            case 0: return [4 /*yield*/, req.Models.Lawyer.findAll({ order: [['id', 'DESC']] })];
             case 1:
                 lawyers = _a.sent();
                 res.send(lawyers);
@@ -118,7 +118,7 @@ route.delete('/lawyer/:id', function (req, res) { return __awaiter(void 0, void 
             case 0: return [4 /*yield*/, req.Models.Lawyer.destroy({ where: { id: req.params.id } })];
             case 1:
                 lawyer = _a.sent();
-                res.send(lawyer);
+                res.send('Deleted');
                 return [2 /*return*/];
         }
     });
@@ -130,7 +130,7 @@ route.delete('/client/:id', function (req, res) { return __awaiter(void 0, void 
             case 0: return [4 /*yield*/, req.Models.Client.destroy({ where: { id: req.params.id } })];
             case 1:
                 client = _a.sent();
-                res.send(client);
+                res.send('Deleted');
                 return [2 /*return*/];
         }
     });
@@ -148,11 +148,14 @@ route.patch('/client', function (req, res) { return __awaiter(void 0, void 0, vo
     });
 }); });
 route.post('/client', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var newClient;
+    var numberOfClients, newClient;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, req.Models.Client.create(__assign(__assign({}, req.body.clientData), { LawyerId: req.body.LawyerId }))];
+            case 0: return [4 /*yield*/, req.Models.Client.count({ where: { LawyerId: req.body.LawyerId } })];
             case 1:
+                numberOfClients = _a.sent();
+                return [4 /*yield*/, req.Models.Client.create(__assign(__assign({}, req.body.clientData), { code: numberOfClients + 1, LawyerId: req.body.LawyerId }))];
+            case 2:
                 newClient = _a.sent();
                 res.send(newClient);
                 return [2 /*return*/];
@@ -172,14 +175,16 @@ route.post('/login', function (req, res) { return __awaiter(void 0, void 0, void
         return [2 /*return*/];
     });
 }); });
-route.post('/image', upload_1.default.single('image'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var image;
+route.post('/image', upload_1.default.array('images'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var images, imagesInserted;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, req.Models.Image.create({ ClientId: req.body.ClientId, path: req.file.filename })];
+            case 0:
+                images = req.files.map(function (image) { return ({ ClientId: req.body.ClientId, path: image.filename }); });
+                return [4 /*yield*/, req.Models.Image.bulkCreate(images)];
             case 1:
-                image = _a.sent();
-                res.send(image);
+                imagesInserted = _a.sent();
+                res.send(imagesInserted);
                 return [2 /*return*/];
         }
     });
@@ -191,7 +196,7 @@ route.delete('/image/:id', function (req, res) { return __awaiter(void 0, void 0
             case 0: return [4 /*yield*/, req.Models.Image.findOne({ where: { id: req.params.id } })];
             case 1:
                 image = _a.sent();
-                upload_1.handleDelete(image._attributes.path);
+                upload_1.handleDelete(image.path);
                 return [4 /*yield*/, image.destroy()];
             case 2:
                 _a.sent();

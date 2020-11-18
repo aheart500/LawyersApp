@@ -1,13 +1,13 @@
 import {Router} from 'express'
 import jwt from 'jsonwebtoken'
-
 import { SECRET } from '../config'
 import upload,{handleDelete} from '../middlewares/upload'
 import { tokenHandler } from '../middlewares/verifyToken'
+import { Image } from '../Models'
 const route = Router()
 
 route.get('/lawyers',tokenHandler,async (req,res)=>{
-    const lawyers = await req.Models.Lawyer.findAll({})
+    const lawyers = await req.Models.Lawyer.findAll({order: [['id', 'DESC']]})
     res.send(lawyers)
 })
 
@@ -21,18 +21,19 @@ route.patch('/lawyer',async(req,res)=>{
 })
 route.delete('/lawyer/:id',async(req,res)=>{
    const lawyer = await req.Models.Lawyer.destroy({where:{id: req.params.id}})
-   res.send(lawyer)
+   res.send('Deleted')
 })
 route.delete('/client/:id',async(req,res)=>{
     const client = await req.Models.Client.destroy({where:{id: req.params.id}})
-    res.send(client)
+    res.send('Deleted')
  })
 route.patch('/client',async(req,res)=>{
     const client = await req.Models.Client.update(req.body.client, {where: {id: req.body.ClientId}})
     res.send(client)
 })
 route.post('/client', async(req,res)=>{
-    const newClient =  await req.Models.Client.create({...req.body.clientData, LawyerId: req.body.LawyerId})
+    const numberOfClients = await req.Models.Client.count({where: {LawyerId: req.body.LawyerId}})
+    const newClient =  await req.Models.Client.create({...req.body.clientData, code: numberOfClients + 1,LawyerId: req.body.LawyerId})
     res.send(newClient)
 })
 
@@ -44,13 +45,14 @@ route.post('/login', async(req,res)=>{
         res.status(401).send("Access Denied");
     }
 })
-route.post('/image', upload.single('image'), async(req,res)=>{
-    const image = await req.Models.Image.create({ClientId: req.body.ClientId,path: req.file.filename})
-    res.send(image)
+route.post('/image', upload.array('images'), async(req,res)=>{
+   const images = (req.files as Array<Express.Multer.File>).map(image=> ({ClientId: req.body.ClientId, path: image.filename}))
+   const imagesInserted = await req.Models.Image.bulkCreate(images) 
+   res.send(imagesInserted)
 })
 route.delete('/image/:id', async(req,res)=>{
-    const image =await req.Models.Image.findOne({where:{id: req.params.id}})
-    handleDelete(image._attributes.path)
+    let image =await req.Models.Image.findOne({where:{id: req.params.id}}) as any
+    handleDelete(image.path)
     await image.destroy()
     res.send('Done')
 })

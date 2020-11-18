@@ -23,6 +23,7 @@ nextApp
   .prepare()
   .then(() => {
     app.use(express.json())
+    app.use('/api/images', express.static('dist/images'))
     app.use('/api',(req, _, next)=>{
         req.Models ={ 
             Client: ClientModel,

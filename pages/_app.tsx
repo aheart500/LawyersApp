@@ -7,7 +7,7 @@ import theme from '../src/theme';
 import { create } from 'jss';
 import rtl from 'jss-rtl';
 import { StylesProvider, jssPreset } from '@material-ui/core/styles'
-
+import '../styles/globals.css'
 export default function MyApp(props) {
   const { Component, pageProps } = props;
   const jss = create({ plugins: [...jssPreset().plugins, rtl()] });

@@ -1,7 +1,8 @@
 {
   "name": "lawyers",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
+  "license": "MIT",
   "scripts": {
     "dev": "nodemon dist/index.js",
     "watch": "tsc --watch --project tsconfig.server.json",
@@ -9,6 +10,7 @@
     "build:next": "next build",
     "build": "npm run build:next && npm run build:server",
     "start": "NODE_ENV=production node dist/index.js",
+    "git": "git push -u origin main",
     "next": "next"
   },
   "dependencies": {
